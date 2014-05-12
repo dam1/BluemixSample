@@ -380,22 +380,22 @@ module.exports = function (grunt) {
    shell: {
     pushbluemix: {
      command: function () {
-      return 'cd ../dist/web/ ;cf push myApptmp --no-manifest --no-start -c "node app.js"' ;
+      return 'cd /dist/ ;cf push myApptmp --no-manifest --no-start -c "node app.js"' ;
      }
     },
     startbluemix: {
      command: function () {
-      return 'cd ../dist/web/ ;cf start myApptmp ';
+      return 'cd /dist/ ;cf start myApptmp ';
      }
     },
     pushbluemixtest: {
      command: function () {
-      return 'cd ../dist/web/ ;cf push myApptest --no-manifest --no-start -c "node app.js"' ;
+      return 'cd /dist/ ;cf push myApptest --no-manifest --no-start -c "node app.js"' ;
      }
     },
     startbluemixtest: {
      command: function () {
-      return 'cd ../dist/web/ ;cf start myApptest ';
+      return 'cd /dist/ ;cf start myApptest ';
      }
     },
     changeroutebluemix: {
@@ -438,13 +438,6 @@ module.exports = function (grunt) {
       return   'git push origin master; git push gitlab master';
      }
     },
-
-    copyTranslation: {
-     command: function () {
-      return   'cp -r  app/translation ../dist/web/; cp -r  app/images/flags ../dist/web/images';
-
-     }
-    }
    }
 
   });
