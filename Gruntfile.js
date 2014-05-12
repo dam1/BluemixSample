@@ -7,6 +7,9 @@
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
 
+var pkg;
+
+
 module.exports = function (grunt) {
 
   // Load grunt tasks automatically
@@ -371,7 +374,79 @@ module.exports = function (grunt) {
         configFile: 'karma.conf.js',
         singleRun: true
       }
+    },
+
+
+   shell: {
+    pushbluemix: {
+     command: function () {
+      return 'cd ../dist/web/ ;cf push myApptmp --no-manifest --no-start -c "node app.js"' ;
+     }
+    },
+    startbluemix: {
+     command: function () {
+      return 'cd ../dist/web/ ;cf start myApptmp ';
+     }
+    },
+    pushbluemixtest: {
+     command: function () {
+      return 'cd ../dist/web/ ;cf push myApptest --no-manifest --no-start -c "node app.js"' ;
+     }
+    },
+    startbluemixtest: {
+     command: function () {
+      return 'cd ../dist/web/ ;cf start myApptest ';
+     }
+    },
+    changeroutebluemix: {
+     command: function () {
+      pkg= grunt.file.readJSON("package.json");
+
+      var command =
+       'cf unmap-route myApp ng.bluemix.net -n myApp; ' +// unmap route myApp.ng.bluemix.net
+        'cf map-route myApptmp ng.bluemix.net -n myApp; ' +//map route myApp.ng.bluemix.net to myApp tmp
+        ' cf rename myApp myApp'+ pkg.version+' ;' +    // rename app myApp into myApplast
+       'cf rename myApptmp myApp'; // rename myApptmp to myApp
+      console.log(command);
+      return command;
+     }
+    },
+    recoverbluemix: {
+     command: function () {
+      return   'cf unmap-route myApp ng.bluemix.net -n myApp; ' +// unmap route myApp.ng.bluemix.net
+       'cf map-route myApplast ng.bluemix.net -n myApp; ' ;//map route myApp.ng.bluemix.net to myApptmp
+     }
+    },
+    gitcommit: {
+     command: function () {
+      pkg= grunt.file.readJSON("package.json");
+
+      console.dir(pkg.version);
+      var version = pkg.version.split('.');
+      var nb = Number(version[2]) +Number(1);
+      version = version[0]+'.'+version[1]+'.'+nb;
+      pkg.version = version;
+      console.log(pkg.version);
+      console.log(JSON.stringify(pkg));
+      grunt.file.write("package.json", JSON.stringify(pkg));
+      return   'git commit -a -m "PUSH '+pkg.name+' - version : ' +pkg.version+'"';
+
+     }
+    },
+    gitpush: {
+     command: function () {
+      return   'git push origin master; git push gitlab master';
+     }
+    },
+
+    copyTranslation: {
+     command: function () {
+      return   'cp -r  app/translation ../dist/web/; cp -r  app/images/flags ../dist/web/images';
+
+     }
     }
+   }
+
   });
 
 
@@ -425,4 +500,30 @@ module.exports = function (grunt) {
     'test',
     'build'
   ]);
+
+
+ // bluemix
+ grunt.registerTask('push bluemix', [
+  'shell:pushbluemix',
+  'shell:startbluemix'
+ ]);
+
+ grunt.registerTask('bluemix', [
+  'shell:pushbluemix',
+  'shell:startbluemix',
+  'shell:changeroutebluemix'
+ ]);
+
+ //git
+ grunt.registerTask('git', [
+  'shell:gitcommit',
+  'shell:gitpush'
+ ]);
+
+ // publish the app in a minute
+ grunt.registerTask('magic', [
+  'build',
+  'push bluemix',
+  'git'
+ ]);
 };
