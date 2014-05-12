@@ -390,12 +390,12 @@ module.exports = function (grunt) {
     },
     pushbluemixtest: {
      command: function () {
-      return 'cd /dist/ ;cf push myApptest --no-manifest --no-start -c "node app.js"' ;
+      return 'cd ./dist/ ;cf push myApptest1 --no-manifest --no-start -c "node app.js"' ;
      }
     },
     startbluemixtest: {
      command: function () {
-      return 'cd /dist/ ;cf start myApptest ';
+      return 'cf start myApptest ';
      }
     },
     changeroutebluemix: {
@@ -437,7 +437,7 @@ module.exports = function (grunt) {
      command: function () {
       return   'git push origin master; git push gitlab master';
      }
-    },
+    }
    }
 
   });
